@@ -21,13 +21,21 @@ def get_baseball_data():
 st.title("Baseball Salary Trends")
 
 df = get_baseball_data()
-options = st.multiselect("What teams should we track?", df["teamID"].unique())
-df = df[df["teamID"].isin(options)]
+team_options = st.multiselect("What teams should we track?", df["teamID"].unique())
+min_year = st.slider("Minimum year", min_value=1985, max_value=2016)
+max_year = st.slider("Maximum year", min_value=1985, max_value=2016, value=2016)
+year_range = range(min_year, max_year + 1)
 
-if options:
+df = df[df["teamID"].isin(team_options)][
+    df["yearID"].isin(range(min_year, max_year + 1))
+]
+
+if team_options and year_range:
     # Create table
     st.write(
-        "Salaries",
+        "Salaries from {}-{} for {}".format(
+            min_year, max_year, ", ".join(team_options)
+        ),
         df.set_index("yearID")
         .groupby(["yearID"])
         .agg({"salary": ["sum", "min", "mean", "median"]}),
@@ -38,7 +46,7 @@ if options:
         alt.Chart(df)
         .mark_circle()
         .encode(
-            x=alt.X("yearID", scale=alt.Scale(domain=(1985, 2016))),
+            x=alt.X("yearID", scale=alt.Scale(domain=(min_year, max_year))),
             size="max(salary)",
             y="sum(salary)",
             color="teamID",
