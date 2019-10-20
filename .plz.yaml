@@ -1,0 +1,8 @@
+- id: start
+  cmd:
+  - pipenv run streamlit run baseball.py
+- id: setup
+  name: set up development environment
+  cmd:
+  - pipenv install
+  - pipenv run pre-commit install
